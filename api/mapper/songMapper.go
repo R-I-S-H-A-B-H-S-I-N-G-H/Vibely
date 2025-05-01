@@ -12,6 +12,7 @@ type SongMapper struct {
 func (m *SongMapper) ToDTO(song *entity.Song) *dto.SongDTO {
 	songDTO := &dto.SongDTO{}
 	songDTO.ID = song.ID
+	songDTO.ShortId =song.ShortId
 	songDTO.CreatedAt = song.CreatedAt
 	songDTO.UpdatedAt = song.UpdatedAt
 	songDTO.IsDeleted = song.IsDeleted

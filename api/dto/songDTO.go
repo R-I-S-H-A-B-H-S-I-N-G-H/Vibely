@@ -13,5 +13,6 @@ type SongDTO struct {
 	Duration    uint      `json:"duration"`
 	ReleaseDate time.Time `json:"releaseDate"`
 
-	HLSStreams ResolutionMapDTO `json:"hlsStreams"`
+	HLSStreams   ResolutionMapDTO `json:"hlsStreams"`
+	PresignedUrl string           `json:"presignedUrl"`
 }
