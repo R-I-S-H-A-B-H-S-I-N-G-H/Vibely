@@ -10,7 +10,7 @@ var mainRouter *route.Route
 var database *databaseconfig.Database
 
 func main() {
-
+	const PORT = ":4001"
 	// initalizing db
 	_, err := database.Init()
 	if err != nil {
@@ -21,6 +21,9 @@ func main() {
 
 	mainRouter.HandleRoute(app)
 
-	app.Listen(":3000")
-
+	println("Starting server at port::  " + PORT)
+	err = app.Listen(PORT)
+	if err != nil {
+		panic(err)
+	}
 }
