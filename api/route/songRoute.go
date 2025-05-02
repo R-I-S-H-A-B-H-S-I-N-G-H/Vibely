@@ -10,8 +10,9 @@ type SongRoute struct{}
 var songController *controller.SongController
 
 func (u *SongRoute) handleRoute(app fiber.Router) {
-	userRoute := app.Group("/song")
+	songRoute := app.Group("/song")
 
-	userRoute.Post("", songController.CreateSong)
-	userRoute.Put("", songController.UpdateSong)
+	songRoute.Post("", songController.CreateSong)
+	songRoute.Put("", songController.UpdateSong)
+	songRoute.Get("/list", songController.GetList)
 }

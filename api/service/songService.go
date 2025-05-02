@@ -43,6 +43,10 @@ func (s *SongService) Save(dto *dto.SongDTO) (*dto.SongDTO, error) {
 	song := songMapper.FromDTO(dto, &entity.Song{})
 	song, err := dao.Create(song)
 
+	if err != nil {
+		return nil, err
+	}
+
 	dto = songMapper.ToDTO(song)
 	songPath := s.generateSongRawUrl(dto.ShortId)
 	dto.PresignedUrl, err = s3Util.GeneratePresignedPutURL(songPath, S3_LINK_EXP)
@@ -60,4 +64,15 @@ func (s *SongService) Update(id string, dto *dto.SongDTO) (*dto.SongDTO, error) 
 	song = songMapper.FromDTO(dto, song)
 	err = dao.Update(song)
 	return songMapper.ToDTO(song), err
+}
+
+func (s *SongService) GetList(filter map[string]interface{}, pageSize int, page int) ([]*dto.SongDTO, error) {
+	dao := s.getSongDao()
+	songList, err := dao.FindAll(filter, pageSize, page)
+	songs := make([]*entity.Song, len(songList.Data))
+	for i := range songList.Data {
+		songs[i] = &songList.Data[i]
+	}
+	songsDTOList := songMapper.ToDTOList(songs)
+	return songsDTOList, err
 }

@@ -12,7 +12,7 @@ type SongMapper struct {
 func (m *SongMapper) ToDTO(song *entity.Song) *dto.SongDTO {
 	songDTO := &dto.SongDTO{}
 	songDTO.ID = song.ID
-	songDTO.ShortId =song.ShortId
+	songDTO.ShortId = song.ShortId
 	songDTO.CreatedAt = song.CreatedAt
 	songDTO.UpdatedAt = song.UpdatedAt
 	songDTO.IsDeleted = song.IsDeleted
@@ -59,4 +59,13 @@ func (m *SongMapper) FromDTO(songDTO *dto.SongDTO, song *entity.Song) *entity.So
 	}
 
 	return song
+}
+
+func (m *SongMapper) ToDTOList(songs []*entity.Song) []*dto.SongDTO {
+	songDTOs := make([]*dto.SongDTO, len(songs))
+
+	for i, itm := range songs {
+		songDTOs[i] = m.ToDTO(itm)
+	}
+	return songDTOs
 }
