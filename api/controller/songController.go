@@ -77,3 +77,15 @@ func (s *SongController) GetList(c *fiber.Ctx) error {
 	c.JSON(songDTOs)
 	return err
 }
+
+func (s *SongController) ProcessSong(c *fiber.Ctx) error {
+	songShortId := c.Params("id")
+	res, err := songService.ProcessSong(songShortId)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Something went wrong",
+		})
+	}
+	// c.JSON(songDTO)
+	return c.Status(fiber.StatusOK).JSON(res)
+}

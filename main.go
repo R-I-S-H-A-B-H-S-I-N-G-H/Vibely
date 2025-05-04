@@ -6,6 +6,7 @@ import (
 	databaseconfig "github.com/R-I-S-H-A-B-H-S-I-N-G-H/Vibely/api/database-config"
 	"github.com/R-I-S-H-A-B-H-S-I-N-G-H/Vibely/api/route"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/joho/godotenv"
 )
 
@@ -23,6 +24,9 @@ func main() {
 	}
 
 	app := fiber.New()
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "*",
+	}))
 
 	mainRouter.HandleRoute(app)
 

@@ -15,4 +15,5 @@ func (u *SongRoute) handleRoute(app fiber.Router) {
 	songRoute.Post("", songController.CreateSong)
 	songRoute.Put("", songController.UpdateSong)
 	songRoute.Get("/list", songController.GetList)
+	songRoute.Get("/:id", songController.ProcessSong)
 }
