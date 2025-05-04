@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/R-I-S-H-A-B-H-S-I-N-G-H/Vibely/api/dto"
+	"github.com/R-I-S-H-A-B-H-S-I-N-G-H/Vibely/api/enum"
 	"github.com/R-I-S-H-A-B-H-S-I-N-G-H/Vibely/api/service"
 	"github.com/gofiber/fiber/v2"
 )
@@ -88,4 +89,26 @@ func (s *SongController) ProcessSong(c *fiber.Ctx) error {
 	}
 	// c.JSON(songDTO)
 	return c.Status(fiber.StatusOK).JSON(res)
+}
+
+func (s *SongController) UpdateSongStatus(c *fiber.Ctx) error {
+	id := c.Params("id")
+	status := c.Params("status")
+	statusEnum, err := enum.ParseSongStatus(status)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Invalid status value",
+		})
+	}
+
+	err = songService.UpdateStatus(id, statusEnum)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Something went wrong",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Status updated successfully",
+	})
 }

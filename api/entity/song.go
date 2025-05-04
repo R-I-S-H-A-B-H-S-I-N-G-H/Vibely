@@ -2,6 +2,8 @@ package entity
 
 import (
 	"time"
+
+	"github.com/R-I-S-H-A-B-H-S-I-N-G-H/Vibely/api/enum"
 )
 
 type Song struct {
@@ -15,5 +17,6 @@ type Song struct {
 	Duration    uint   `gorm:"not null"`
 	ReleaseDate time.Time
 
-	HLSStreams string `gorm:"type:longtext"`
+	HLSStreams string          `gorm:"type:longtext"`
+	Status     enum.SongStatus `gorm:"type:varchar(20);not null;default:'PENDING_UPLOAD'"`
 }

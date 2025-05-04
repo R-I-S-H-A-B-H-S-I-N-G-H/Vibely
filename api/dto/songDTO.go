@@ -1,6 +1,10 @@
 package dto
 
-import "time"
+import (
+	"time"
+
+	"github.com/R-I-S-H-A-B-H-S-I-N-G-H/Vibely/api/enum"
+)
 
 type SongDTO struct {
 	BaseDTO
@@ -15,4 +19,5 @@ type SongDTO struct {
 
 	HLSStreams   ResolutionMapDTO `json:"hlsStreams"`
 	PresignedUrl string           `json:"presignedUrl"`
+	Status       enum.SongStatus  `json:"status"`
 }

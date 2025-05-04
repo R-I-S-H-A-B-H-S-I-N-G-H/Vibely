@@ -1,9 +1,12 @@
 package service
 
 import (
+	"errors"
+
 	"github.com/R-I-S-H-A-B-H-S-I-N-G-H/Vibely/api/dao"
 	"github.com/R-I-S-H-A-B-H-S-I-N-G-H/Vibely/api/dto"
 	"github.com/R-I-S-H-A-B-H-S-I-N-G-H/Vibely/api/entity"
+	"github.com/R-I-S-H-A-B-H-S-I-N-G-H/Vibely/api/enum"
 	"github.com/R-I-S-H-A-B-H-S-I-N-G-H/Vibely/api/mapper"
 )
 
@@ -79,4 +82,31 @@ func (s *SongService) GetList(filter map[string]interface{}, pageSize int, page 
 	}
 	songsDTOList := songMapper.ToDTOList(songs)
 	return songsDTOList, err
+}
+
+func (s *SongService) CanUpdateStatus(dto *dto.SongDTO, status enum.SongStatus) (bool, error) {
+	if status == enum.StatusUploaded {
+		songPath := pathService.GetRawAudioS3Path(dto.ShortId)
+		return s3Util.ObjectExists(songPath)
+	}
+	return true, nil
+}
+
+func (s *SongService) UpdateStatus(id string, status enum.SongStatus) error {
+	songDto, err := s.Get(id)
+	if err != nil {
+		return err
+	}
+
+	canupdate, err := s.CanUpdateStatus(songDto, status)
+	if err != nil {
+		return err
+	}
+	if !canupdate {
+		return errors.New("status Cant be updated")
+	}
+
+	songDto.Status = status
+	_, err = s.Update(id, songDto)
+	return err
 }

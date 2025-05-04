@@ -25,6 +25,7 @@ func (m *SongMapper) ToDTO(song *entity.Song) *dto.SongDTO {
 	songDTO.Language = song.Language
 	songDTO.Duration = song.Duration
 	songDTO.ReleaseDate = song.ReleaseDate
+	songDTO.Status = song.Status
 
 	var hlsStreams dto.ResolutionMapDTO
 
@@ -50,6 +51,7 @@ func (m *SongMapper) FromDTO(songDTO *dto.SongDTO, song *entity.Song) *entity.So
 	song.Language = songDTO.Language
 	song.Duration = songDTO.Duration
 	song.ReleaseDate = songDTO.ReleaseDate
+	song.Status = songDTO.Status
 
 	var err error
 	song.HLSStreams, err = utils.ToString(songDTO.HLSStreams)

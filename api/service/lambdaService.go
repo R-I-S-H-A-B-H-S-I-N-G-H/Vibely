@@ -26,12 +26,6 @@ func (l *LambdaService) GetLambdaClient() (*lambda.Lambda, error) {
 	accessKeyID := os.Getenv("LAMBDA_ACCESS_KEY")
 	secretAccessKey := os.Getenv("LAMBDA_SECRET_KEY")
 
-	fmt.Println()
-	fmt.Println("refion : ", region)
-	fmt.Println("accesskey", accessKeyID)
-	fmt.Println("secretkey", secretAccessKey)
-	fmt.Println()
-
 	// Create a session using static credentials
 	sess, err := session.NewSession(&aws.Config{
 		Region:      aws.String(region),
@@ -53,19 +47,12 @@ func (s *LambdaService) InvokeLambda(functionName string, payload any) ([]byte, 
 	if err != nil {
 		return nil, err
 	}
-	println()
-	println("invoke lambda :: ", functionName, payload)
-	println()
 
 	// Marshal the payload to JSON
 	payloadBytes, err := json.Marshal(payload)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal payload: %v", err)
 	}
-
-	println()
-	println("final lambda payload :: ", string(payloadBytes))
-	println()
 
 	// Invoke the Lambda function
 	result, err := lambdaclient.Invoke(&lambda.InvokeInput{

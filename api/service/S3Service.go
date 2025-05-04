@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
@@ -136,4 +137,23 @@ func (s *S3Service) GeneratePresignedPutURL(objectKey string, expiryDuration int
 	}
 
 	return presignedURL, nil
+}
+
+func (s *S3Service) ObjectExists(objectKey string) (bool, error) {
+	svc := s.getS3Client()
+
+	_, err := svc.HeadObject(&s3.HeadObjectInput{
+		Bucket: aws.String(getS3Bucket()),
+		Key:    aws.String(objectKey),
+	})
+
+	if err != nil {
+		// Check for a not found error
+		if aerr, ok := err.(awserr.RequestFailure); ok && aerr.StatusCode() == 404 {
+			return false, nil
+		}
+		return false, fmt.Errorf("failed to check if object exists: %w", err)
+	}
+
+	return true, nil
 }
