@@ -4,6 +4,7 @@ import (
 	"os"
 
 	databaseconfig "github.com/R-I-S-H-A-B-H-S-I-N-G-H/Vibely/api/database-config"
+	"github.com/R-I-S-H-A-B-H-S-I-N-G-H/Vibely/api/jobs"
 	"github.com/R-I-S-H-A-B-H-S-I-N-G-H/Vibely/api/route"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -12,6 +13,7 @@ import (
 
 var mainRouter *route.Route
 var database *databaseconfig.Database
+var job *jobs.Job
 
 func main() {
 	const PORT = ":4001"
@@ -23,6 +25,7 @@ func main() {
 		panic(err)
 	}
 
+	job.InitiateJob()
 	app := fiber.New()
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "*",

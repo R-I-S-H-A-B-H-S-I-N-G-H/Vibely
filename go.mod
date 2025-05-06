@@ -4,6 +4,8 @@ go 1.22.6
 
 require github.com/aws/aws-sdk-go v1.55.7
 
+require github.com/robfig/cron/v3 v3.0.1 // indirect
+
 require (
 	github.com/andybalholm/brotli v1.1.0 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.36.3 // indirect

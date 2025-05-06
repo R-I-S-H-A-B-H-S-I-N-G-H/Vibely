@@ -34,3 +34,7 @@ func (p *PathService) GetHLSAudioS3Path(songShortId string, bitrate int) string 
 func (p *PathService) GetFullHLSAudioS3Path(songShortId string, bitrate int) string {
 	return fmt.Sprintf("%s/%s", p.GetS3BaseUrl(), p.GetHLSAudioS3Path(songShortId, bitrate))
 }
+
+func (p *PathService) GetHLSAudioPlaylistS3Path(songShortId string, bitrate int) string {
+	return fmt.Sprintf("%s/%s/hls/%d/playlist.m3u8", p.GetSongS3BaseFolder(), songShortId, bitrate)
+}

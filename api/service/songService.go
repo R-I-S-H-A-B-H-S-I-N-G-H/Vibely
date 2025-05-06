@@ -2,17 +2,19 @@ package service
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/R-I-S-H-A-B-H-S-I-N-G-H/Vibely/api/dao"
 	"github.com/R-I-S-H-A-B-H-S-I-N-G-H/Vibely/api/dto"
 	"github.com/R-I-S-H-A-B-H-S-I-N-G-H/Vibely/api/entity"
 	"github.com/R-I-S-H-A-B-H-S-I-N-G-H/Vibely/api/enum"
 	"github.com/R-I-S-H-A-B-H-S-I-N-G-H/Vibely/api/mapper"
+	"github.com/R-I-S-H-A-B-H-S-I-N-G-H/Vibely/api/utils"
 )
 
 type SongService struct{}
 
-var songDao *dao.DAO[entity.Song]
+var songDao *dao.SongDAO
 var songMapper *mapper.SongMapper
 var s3Util *S3Service
 var pathService *PathService
@@ -20,9 +22,9 @@ var audioProcessService *AudioProcessService
 
 const S3_LINK_EXP = 60 * 60
 
-func (s *SongService) getSongDao() *dao.DAO[entity.Song] {
+func (s *SongService) getSongDao() *dao.SongDAO {
 	if songDao == nil {
-		songDao = dao.GetDAO[entity.Song]()
+		songDao = dao.NewSongDAO()
 	}
 	return songDao
 }
@@ -109,4 +111,70 @@ func (s *SongService) UpdateStatus(id string, status enum.SongStatus) error {
 	songDto.Status = status
 	_, err = s.Update(id, songDto)
 	return err
+}
+
+func (s *SongService) GenerateHLSJob() {
+	// get all songs with status uploaded
+	dao := s.getSongDao()
+	res, err := dao.FindByStatus(enum.StatusUploaded, 10)
+	if err != nil {
+		return
+	}
+
+	songist := res.Data
+	songs := make([]*entity.Song, len(songist))
+	for i := range songist {
+		songs[i] = &songist[i]
+	}
+
+	songDTOList := songMapper.ToDTOList(songs)
+	for _, songDTO := range songDTOList {
+		s.UpdateStatus(songDTO.ID, enum.StatusProcessing)
+		songDTO := s.GenerateHLSForSong(songDTO)
+		s.Update(songDTO.ID, songDTO)
+	}
+}
+
+func (s *SongService) GenerateHLSForSong(songDTO *dto.SongDTO) *dto.SongDTO {
+	stringObj, _ := utils.ToString(songDTO)
+	fmt.Println()
+	fmt.Println("GENERATE HLS FOR SONG :: ", stringObj)
+	fmt.Println()
+
+	type HLSVariant struct {
+		SegmentDuration int
+		BitrateKbps     int
+		Bandwidth       int // in bps
+	}
+
+	variants := []HLSVariant{
+		{2, 32, 32000},
+		{2, 64, 64000},
+		{3, 96, 96000},
+		{5, 128, 128000},
+		{5, 160, 160000},
+		{10, 192, 192000},
+		{10, 320, 320000},
+	}
+
+	for _, v := range variants {
+		_, err := audioProcessService.EncodeAudioToHLS(songDTO.ShortId, v.SegmentDuration, v.BitrateKbps)
+
+		if err != nil {
+			fmt.Println("ERROR WHILE PROCESSING :: ", err.Error())
+			continue
+		}
+
+		if songDTO.HLSStreams == nil {
+			songDTO.HLSStreams = dto.ResolutionMapDTO{}
+		}
+
+		songDTO.HLSStreams[v.BitrateKbps] = dto.HLSStreamDTO{
+			URL:       pathService.GetHLSAudioPlaylistS3Path(songDTO.ShortId, v.BitrateKbps),
+			Bandwidth: uint(v.Bandwidth),
+		}
+	}
+
+	songDTO.Status = enum.StatusProcessed
+	return songDTO
 }
