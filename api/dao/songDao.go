@@ -25,3 +25,10 @@ func (s *SongDAO) FindByStatus(status enum.SongStatus, size int) (*dto.Paginatio
 	}
 	return s.FindAll(filters, 1, size)
 }
+
+// make function to find by shortId
+func (s *SongDAO) FindByShortId(shortId string) (*entity.Song, error) {
+	return s.FindOne(map[string]interface{}{
+		"short_id": shortId,
+	})
+}

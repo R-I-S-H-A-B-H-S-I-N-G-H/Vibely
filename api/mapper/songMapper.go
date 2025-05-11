@@ -31,7 +31,7 @@ func (m *SongMapper) ToDTO(song *entity.Song) *dto.SongDTO {
 
 	err := utils.ToObject(song.HLSStreams, &hlsStreams)
 	if err != nil {
-		panic(err)
+		hlsStreams = dto.ResolutionMapDTO{}
 	}
 	songDTO.HLSStreams = hlsStreams
 

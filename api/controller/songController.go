@@ -79,18 +79,6 @@ func (s *SongController) GetList(c *fiber.Ctx) error {
 	return err
 }
 
-func (s *SongController) ProcessSong(c *fiber.Ctx) error {
-	songShortId := c.Params("id")
-	res, err := songService.ProcessSong(songShortId)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"message": "Something went wrong",
-		})
-	}
-	// c.JSON(songDTO)
-	return c.Status(fiber.StatusOK).JSON(res)
-}
-
 func (s *SongController) UpdateSongStatus(c *fiber.Ctx) error {
 	id := c.Params("id")
 	status := c.Params("status")
@@ -111,4 +99,38 @@ func (s *SongController) UpdateSongStatus(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message": "Status updated successfully",
 	})
+}
+
+func (s *SongController) LambdaCallback(c *fiber.Ctx) error {
+	shortId := c.Params("shortId")
+	segmentStr := c.Query("segment")
+	bitrateStr := c.Query("bitrate")
+	bandwidthStr := c.Query("bandwidth")
+
+	segment, err := strconv.Atoi(segmentStr)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Invalid segment value",
+		})
+	}
+
+	bitrate, err := strconv.Atoi(bitrateStr)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Invalid bitrate value",
+		})
+	}
+
+	bandwidth, err := strconv.Atoi(bandwidthStr)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": "Invalid bandwidth value",
+		})
+	}
+
+	var lambdaCb *dto.LambdaCallbackResponse
+	c.BodyParser(&lambdaCb)
+
+	songService.LambdaCallbackHandler(shortId, segment, bitrate, bandwidth, lambdaCb)
+	return nil
 }
